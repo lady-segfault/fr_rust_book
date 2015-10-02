@@ -50,68 +50,71 @@ $ sudo /usr/local/lib/rustlib/uninstall.sh
 Si vous avez utilisé l'installeur Windows, relancez le `.msi` et vous verrez
 l'option de désinstallation.
 
-## That disclaimer we promised
+## Le démenti promis
 
-Some people, and somewhat rightfully so, get very upset when we tell you to
-`curl | sh`. Basically, when you do this, you are trusting that the good
-people who maintain Rust aren't going to hack your computer and do bad things.
-That's a good instinct! If you're one of those people, please check out the
-documentation on [building Rust from Source][from-source], or [the official
-binary downloads][install-page].
+Certaines personnes, et à juste titre, n'apprécient pas quand on leur dit de
+faire `curl | sh`. Basiquement, quand vous faites ça, vous faites confiance
+que les gentilles peronnes qui maintiennent Rust ne vont pas pirater votre
+ordinateur et faire de mauvaises choses. C'est un bon instinct ! Si vous êtes
+l'une de ces personnes, veuillez vérifier la documentation sur [compiler
+Rust depuis le code source][from-source], ou [les téléchargements officiels
+des binaires][install-page].
 
 [from-source]: https://github.com/rust-lang/rust#building-from-source
 
-## Platform support
+## Support des plateformes
 
-Oh, we should also mention the officially supported platforms:
+Oh, nous devrions aussi mentionner les plateformes supportées officiellement :
 
 * Windows (7, 8, Server 2008 R2)
 * Linux (2.6.18 or later, various distributions), x86 and x86-64
 * OSX 10.7 (Lion) or later, x86 and x86-64
 
-We extensively test Rust on these platforms, and a few others, too, like
-Android. But these are the ones most likely to work, as they have the most
-testing.
+Nous testons Rust de manière intense sur ces plateformes, et quelques autres
+aussi, comme Android. Mais celles citées précédemment sont celles qui sont
+le plus supposé fonctionner car ce sont elles qui possèdent le plus de tests.
 
-Finally, a comment about Windows. Rust considers Windows to be a first-class
-platform upon release, but if we're honest, the Windows experience isn't as
-integrated as the Linux/OS X experience is. We're working on it! If anything
-does not work, it is a bug. Please let us know if that happens. Each and every
-commit is tested against Windows just like any other platform.
+Finalement, un commentaire au sujet de Windows. Rust considère Windows comme
+une plateforme de release de premier ordre, mais pour être honnête,
+l'expérience Windows n'est pas aussi intégrée que celle de Linux/OS X. Nous
+travaillons dessus ! Si quoi que ce soit ne fonctionne pas, c'est un bug.
+Merci de nous tenir au courant si cela vous arrive. Chaque commit est aussi
+testé sur Windows tout comme les autres plateformes.
 
-## After installation
+## Après l'installation
 
-If you've got Rust installed, you can open up a shell, and type this:
+Si vous avez installé Rust, vous pouvez ouvrir un shell et taper :
 
 ```bash
 $ rustc --version
 ```
 
-You should see the version number, commit hash, and commit date. If you just
-installed version 1.2.0, you should see:
+Vous devriez voir le numéro de version, le hash du commit et sa date. Si vous
+avez installé la version 1.2.0, vous devriez voir :
 
 ```bash
 rustc 1.2.0 (082e47636 2015-08-03)
 ```
 
-If you did, Rust has been installed successfully! Congrats!
+Si c'est bien le cas, Rust a été correctement installé, félicitations !
 
-If you didn't and you're on Windows, check that Rust is in your %PATH% system
-variable. If it isn't, run the installer again, select "Change" on the "Change,
-repair, or remove installation" page and ensure "Add to PATH" is installed on
-the local hard drive.
+Si ce n'est pas le cas et que vous êtes sous Windows, vérifiez si Rust est
+bien dans votre variable système %PATH%. Sinon, relancez l'installeur,
+sélectionnez "Change" sur la page "Change, repair, or remove installation"
+et assurez-vous que "Add to PATH" est installé sur le disque dur local.
 
-This installer also installs a copy of the documentation locally, so you can
-read it offline. On UNIX systems, `/usr/local/share/doc/rust` is the location.
-On Windows, it's in a `share/doc` directory, inside wherever you installed Rust
-to.
+Cet installeur installe aussi une copie de la documentation localement pour
+que vous puissiez y avoir accès hors-ligne. Sur les systèmes UNIX,
+`/usr/local/share/doc/rust` est l'emplacement. Sur Windows, c'est dans le
+dossier `share/doc`, à l'intérieur de l'endroit où vous avez installé Rust.
 
-If not, there are a number of places where you can get help. The easiest is
-[the #rust IRC channel on irc.mozilla.org][irc], which you can access through
-[Mibbit][mibbit]. Click that link, and you'll be chatting with other Rustaceans
-(a silly nickname we call ourselves), and we can help you out. Other great
-resources include [the user’s forum][users], and
-[Stack Overflow][stackoverflow].
+Si ce n'est toujours pas bon, il y a plusieurs endroits où vous pourrez
+obtenir de l'aide. Le moyen le plus simple est [le channel #rust sur l'IRC à
+l'adresse irc.mozilla.org][irc], auquel vous pouvez accéder grâce à
+[Mibbit][mibbit] (ou tout autre client IRC). Cliquez sur ce lien et vous
+pourrez discuter avec d'autres Rustacés (un gentil petit surnom que l'on s'est
+donnés) pour que l'on puisse vous aider. Il y a aussi le [forum utilisateur][users]
+et [Stack Overflow][stackoverflow].
 
 [irc]: irc://irc.mozilla.org/#rust
 [mibbit]: http://chat.mibbit.com/?server=irc.mozilla.org&channel=%23rust
