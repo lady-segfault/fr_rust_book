@@ -115,17 +115,20 @@ fn main() {
 }
 ```
 
-We’ve introduced another binding, `y`. In this case, `y` is a ‘reference’ to
-the first element of the vector. Rust’s references are similar to pointers in
-other languages, but with additional compile-time safety checks. References
-interact with the ownership system by [‘borrowing’][borrowing] what they point
-to, rather than owning it. The difference is, when the reference goes out of
-scope, it will not deallocate the underlying memory. If it did, we’d
-de-allocate twice, which is bad!
+Nous avons introduit une nouvelle variable : `y`. Dans le cas présent, `y` est
+une référence sur le premier élément du vecteur. Les références en Rust sont
+similaires aux pointeurs dans d'autres langages, mais avec une vérification de
+sécurité supplémentaire au moment de la compilation. Les références intéragissent
+avec le système de propriété en ["empruntant"][borrowing] (ou "borrowing") ce sur
+quoi elles pointent plutôt que d'en devenir le propriétaire. La différence est
+que, lorsque la référence est détruite, la mémoire de l'objet pointé ne l'est
+pas. Si c'était le cas, nous aurions une double libération de mémoire, ce qui
+serait assez problématique !
 
-[borrowing]: references-and-borrowing.html
+[borrowing]: references-et-emprunt.html
 
-Let’s add a third line. It looks innocent enough, but causes a compiler error:
+Ajoutons maintenant une troisième ligne. Ça semble assez innocent, mais cause
+pourtant une erreur du compilateur :
 
 ```rust,ignore
 fn main() {
@@ -137,8 +140,8 @@ fn main() {
 }
 ```
 
-`push` is a method on vectors that appends another element to the end of the
-vector. When we try to compile this program, we get an error:
+`push` est une méthode de `Vec` qui permet d'ajouter un élément à la fin du
+vecteur. Quand on essaie de compiler ce code, on obtient l'erreur suivante :
 
 ```text
 error: cannot borrow `x` as mutable because it is also borrowed as immutable
@@ -155,20 +158,23 @@ fn main() {
 ^
 ```
 
-Whew! The Rust compiler gives quite detailed errors at times, and this is one
-of those times. As the error explains, while we made our binding mutable, we
-still cannot call `push`. This is because we already have a reference to an
-element of the vector, `y`. Mutating something while another reference exists
-is dangerous, because we may invalidate the reference. In this specific case,
-when we create the vector, we may have only allocated space for two elements.
-Adding a third would mean allocating a new chunk of memory for all those elements,
-copying the old values over, and updating the internal pointer to that memory.
-That all works just fine. The problem is that `y` wouldn’t get updated, and so
-we’d have a ‘dangling pointer’. That’s bad. Any use of `y` would be an error in
-this case, and so the compiler has caught this for us.
+Whew ! La compilateur Rust donne des erreurs plutôt détaillées à certains moments,
+et c'est justement l'un de ces moments. Comme l'erreur l'explique, alors que nous
+avons crée une variable mutable, nous ne pouvons pas utiliser la méthode `push`.
+C'est parce que nous avons déjà une référence sur un élément du vecteur, `y`.
+Modifier quelque chose alors qu'une autre référence sur cet objet existe est
+dangereux, parce que cela pourrait rendre cette référence invalide. Dans ce cas
+spécifique, quand nous créons le vecteur, nous n'avons alloué de la mémoire que
+pour deux éléments. En ajouter un troisième signifierait allouer un nouveau bout
+de mémoire pour tous ces nouveaux éléments, copier les anciennes valeurs dedans
+et mettre à jour le pointeur interne pointant sur cette mémoire. Ça fonctionne
+très bien. Le problème est que `y` ne serait pas mis à jour et nous nous
+retrouverions avec un pointeur invalide. Ce qui n'est pas bon. Tout usage de `y`
+serait une erreur dans ce contexte, et donc le compilateur nous a montré notre
+erreur.
 
-So how do we solve this problem? There are two approaches we can take. The first
-is making a copy rather than using a reference:
+Donc maintenant, comment résoudre ce problème ? Il y a 2 façons de faire. La
+première est de créer une copie plutôt que d'utiliser une référence :
 
 ```rust
 fn main() {
@@ -180,15 +186,17 @@ fn main() {
 }
 ```
 
-Rust has [move semantics][move] by default, so if we want to make a copy of some
-data, we call the `clone()` method. In this example, `y` is no longer a reference
-to the vector stored in `x`, but a copy of its first element, `"Hello"`. Now
-that we don’t have a reference, our `push()` works just fine.
+Rust utilise la [sémantique move][move] par défaut, donc si nous voulons créer une
+copie de données, nous pouvons appeler la méthode `clone()`. Dans cet exemple, `y`
+n'est plus une référence sur le vecteur stocké dans `x`, mais une copie de son
+premier élément, `"Hello"`. Maintenant que nous n'avons plus de référence, notre
+`push()` fonctionne parfaitement.
 
-[move]: ownership.html#move-semantics
+[move]: propriete.html#move-semantics
 
-If we truly want a reference, we need the other option: ensure that our reference
-goes out of scope before we try to do the mutation. That looks like this:
+Si nous voulons vraiment une référence, nous allons devoir utiliser l'autre
+solution : sortir du scope courant avant d'essayer de modifier notre variable.
+Ça ressemble à ça :
 
 ```rust
 fn main() {
@@ -202,8 +210,9 @@ fn main() {
 }
 ```
 
-We created an inner scope with an additional set of curly braces. `y` will go out of
-scope before we call `push()`, and so we’re all good.
+Nous avons créé un sous-scope (inner scope) en ajoutant des accolades. `y` sortira
+du scope avant que l'on appelle `push()`, et donc tout est bon.
 
-This concept of ownership isn’t just good for preventing dangling pointers, but an
-entire set of related problems, like iterator invalidation, concurrency, and more.
+Ce concept de propriété n'est pas seulement bon pour prévenir des pointeurs invalides,
+mais aussi un ensemble complets d'autres problèmes liés, comme des itérateurs
+invalides, de la concurrence et bien plus.
