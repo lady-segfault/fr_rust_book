@@ -97,80 +97,84 @@ tabulation. Nous fournissons [des configurations pour plusieurs éditeurs][confi
 
 [configs]: https://github.com/rust-lang/rust/tree/master/src/etc/CONFIGS.md
 
-The second point is the `println!()` part. This is calling a Rust [macro][macro],
-which is how metaprogramming is done in Rust. If it were a function instead, it
-would look like this: `println()`. For our purposes, we don’t need to worry
-about this difference. Just know that sometimes, you’ll see a `!`, and that
-means that you’re calling a macro instead of a normal function. Rust implements
-`println!` as a macro rather than a function for good reasons, but that's an
-advanced topic. One last thing to mention: Rust’s macros are significantly
-different from C macros, if you’ve used those. Don’t be scared of using macros.
-We’ll get to the details eventually, you’ll just have to trust us for now.
+Le second point est le `println!()`. On appelle ça une [macro][macro], et c'est
+ainsi que l'on fait de la métaprogrammation en Rust. Si c'était une fonction à
+la place, ça ressemblerait plutôt à `println()`. Pour nos objectifs, nous n'avons
+pas besoin de nous inquiéter de cette différence. Sachez juste que, de temps en
+temps, vous verrez un `!`, ce qui voudra dire que vous appelerez une macro plutôt
+qu'une fonction ordinaire. Rust implémente `println!` comme une macro plutôt que
+comme une fonction pour de bonnes raisons, mais c'est un cours d'un niveau avancé.
+Une dernière chose à mentionner : les macros de Rust sont très différentes de
+celles que l'on peut croiser en C, si vous vous en êtes déjà servi. N'ayez pas
+peur d'utiliser des macros. Nous verrons cela en détail, mais vous allez devoir
+nous faire confiance pour le moment.
 
 [macro]: macros.html
 
-Next, `"Hello, world!"` is a ‘string’. Strings are a surprisingly complicated
-topic in a systems programming language, and this is a ‘statically allocated’
-string. If you want to read further about allocation, check out
-[the stack and the heap][allocation], but you don’t need to right now if you
-don’t want to. We pass this string as an argument to `println!`, which prints the
-string to the screen. Easy enough!
+Ensuite, `"Hello, world!` est une "string". Les Strings sont un sujet étonnament
+compliqué dans un langage de programmation système, et c'est une string
+"allouée statiquement". Si vous voulez en savoir plus à propos de l'allocation,
+lisez [la stack et la heap][allocation], mais vous n'en avez pas besoin dans
+l'immédiat. Nous passons cette string comme argument à `println!` qui l'affiche
+à l'écran. Facile !
 
 [allocation]: the-stack-and-the-heap.html
 
-Finally, the line ends with a semicolon (`;`). Rust is an [‘expression oriented’
-language][expression-oriented language], which means that most things are
-expressions, rather than statements. The `;` is used to indicate that this
-expression is over, and the next one is ready to begin. Most lines of Rust code
-end with a `;`.
+Finalement, la ligne se termine avec un point-virgule (`;`). Rust est [un langage
+"orienté expression"][expression-oriented language], ce qui signifie que la
+plupart des choses sont des expressions plutôt que des déclarations. Le `;`
+est utilisé pour indiquer que l'expression prend fin et que la suivante est
+prête à commencer. La plupart des lignes de code Rust se terminent par un `;`.
 
-[expression-oriented language]: glossary.html#expression-oriented-language
+[expression-oriented language]: sommaire.html#langage-orienté-expression
 
-Finally, actually compiling and running our program. We can compile with our
-compiler, `rustc`, by passing it the name of our source file:
+Finalement, pour compiler nous pouvons utiliser directement notre compilateur,
+`rustc`, en passant le nom du fichier source :
 
 ```bash
 $ rustc main.rs
 ```
 
-This is similar to `gcc` or `clang`, if you come from a C or C++ background. Rust
-will output a binary executable. You can see it with `ls`:
+C'est similaire à `gcc` ou `clang`, si vous avez déjà fait du C ou du C++. Rust
+créera un fichier exécutable. Vous pouvez le voir utilisant `ls` :
 
 ```bash
 $ ls
 main  main.rs
 ```
 
-Or on Windows:
+Ou sur Windows :
 
 ```bash
 $ dir
 main.exe  main.rs
 ```
 
-There are now two files: our source code, with the `.rs` extension, and the
-executable (`main.exe` on Windows, `main` everywhere else)
+Il y a maintenant deux fichiers : notre fichier source, avec l'extension
+`.rs`, et l'exécutable (`main.exe` sur Windows, `main` partout ailleurs).
 
 ```bash
 $ ./main  # or main.exe on Windows
 ```
 
-This prints out our `Hello, world!` text to our terminal.
+Cela affiche notre texte `Hello, world!` sur notre terminal.
 
-If you come from a dynamic language like Ruby, Python, or JavaScript,
-you may not be used to these two steps being separate. Rust is an
-‘ahead-of-time compiled language’, which means that you can compile a program,
-give it to someone else, and they don't need to have Rust installed. If you
-give someone a `.rb` or `.py` or `.js` file, they need to have a
-Ruby/Python/JavaScript implementation installed, but you just need one command
-to both compile and run your program. Everything is a tradeoff in language
-design, and Rust has made its choice.
+Si vous venez d'un langage dynamique comme Ruby, Python ou Javascript,
+vous risquez de ne pas être habitué à cette façon de faire en deux
+étapes séparées. Rust est un "langage compilé en amont", ce qui signifie
+que vous pouvez compiler un programme, le donner à quelqu'un d'autre et
+ils n'auront pas besoin d'avoir installés Rust pour pouvoir l'exécuter.
+Si vous donnez un `.rb` ou un `.py` ou encore un `.js` à quelqu'un,
+cette personne aura besoin d'avoir installé Ruby/Python/Javascript
+pour pouvoir s'en servir, mais vous n'avez besoin que d'une seule
+commande pour compiler et exécuter votre programmae. Tout est un
+compromis dans la conception d'un langage et Rust a fait son choix.
 
-Congratulations! You have officially written a Rust program. That makes you a
-Rust programmer! Welcome. 🎊🎉👍
+Félicitations ! Vous avez officiellement écrit un programme Rust. Vous
+êtes maintenant un développeur Rust ! Bienvenue. 🎊🎉👍
 
-Next, I'd like to introduce you to another tool, Cargo, which is used to write
-real-world Rust programs. Just using `rustc` is nice for simple things, but as
-your project grows, you'll want something to help you manage all of the options
-that it has, and to make it easy to share your code with other people and
-projects.
+Ensuite, j'aimerais vous présenter à un autre outil, Cargo, qui est utilisé
+pour écrire des programmes Rust "réels" (real-world). Juste utiliser `rustc`
+est utile pour des choses simples, mais quand votre projet grandira, vous
+voudrez quelque chose pour gérer toutes ses options. Cela rendra aussi le
+partage de code avec d'autres personnes et d'autres projets plus facile.
