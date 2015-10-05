@@ -361,7 +361,7 @@ Vous avez entré : 6
 Parfait ! Notre première partie est terminée : nous pouvons récupérer
 l'entrée d'un utilisateur puis l'afficher.
 
-# Generer a numbre secret
+# Generer a nombre secret
 
 Ensuite, nous allons avoir besoin de générer un nombre secret. Rust n'inclut
 pas encore de fonctionner de nombre aléatoire dans sa bibliothèque standard.
@@ -462,23 +462,25 @@ et utilisera la version spécifiée plutôt que de devoir chercher de nouveau
 la version que nous voulons. En d'autres mots, nous resterons à la version
 `0.3.8` tant que nous ne ferons pas d'upgrade nous-même.
 
-What about when we _do_ want to use `v0.3.9`? Cargo has another command,
-`update`, which says ‘ignore the lock, figure out all the latest versions that
-fit what we’ve specified. If that works, write those versions out to the lock
-file’. But, by default, Cargo will only look for versions larger than `0.3.0`
-and smaller than `0.4.0`. If we want to move to `0.4.x`, we’d have to update
-the `Cargo.toml` directly. When we do, the next time we `cargo build`, Cargo
-will update the index and re-evaluate our `rand` requirements.
+Que faire si nous _voulons_ nous servir de la version `0.3.9` ? Cargo a une
+autre commande : `update`, qui dit "ignore le lock, retrouve les dernières
+versions qui correspondent à ce que je veux. Si t'en trouves, écris-les
+dans le fichier lock". Mais, par défaut, Cargo regardera toujours plus
+grand que `0.3.0` et plus petit que `0.4.0`. Si nous voulons la `0.4.x`,
+nous devrons mettre à jour le fichier `Cargo.toml` directement. Si nous le
+faisions, la prochaine fois que nous lancerions `cargo build`, Cargo mettra
+l'index à jour et ré-évaluera les requis de `rand`.
 
-There’s a lot more to say about [Cargo][doccargo] and [its
-ecosystem][doccratesio], but for now, that’s all we need to know. Cargo makes
-it really easy to re-use libraries, and so Rustaceans tend to write smaller
-projects which are assembled out of a number of sub-packages.
+Il y a beaucoup à dire au sujet de [Cargo][doccargo] et [son écosystème]
+[doccratesio], mais pour l'instant, c'est tout ce que vous avez besoin de
+savoir. Cargo facilite grandement l'utilisation de bibliothèques externes,
+et les Rustacés tendent à écrire de plus petits projets qui sont assemblés
+à partir de plusieurs sous-paquets.
 
 [doccargo]: http://doc.crates.io
 [doccratesio]: http://doc.crates.io/crates-io.html
 
-Let’s get on to actually _using_ `rand`. Here’s our next step:
+Il est temps de réellement _utiliser_ `rand`. Voici l'étape suivante :
 
 ```rust,ignore
 extern crate rand;
@@ -487,29 +489,31 @@ use std::io;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("The nombre secret est : {}", secret_number);
 
-    println!("Please input your guess.");
+    println!("Veuillez entrer un nombre.");
 
     let mut guess = String::new();
 
     io::stdin().read_line(&mut guess)
         .ok()
-        .expect("failed to read line");
+        .expect("Impossible de lire la ligne");
 
-    println!("You guessed: {}", guess);
+    println!("Vous avez entré : {}", guess);
 }
 ```
 
-The first thing we’ve done is change the first line. It now says
-`extern crate rand`. Because we declared `rand` in our `[dependencies]`, we
-can use `extern crate` to let Rust know we’ll be making use of it. This also
-does the equivalent of a `use rand;` as well, so we can make use of anything
-in the `rand` crate by prefixing it with `rand::`.
+La première chose que nous avons fait a été de changer la première
+ligne. Il est maintenant écrit `extern crate rand`. Parce que nous
+avons déclaré `rand` dans notre `[dependencies]`, nous pouvons
+utiliser `extern crate` pour permettre à Rust de savoir que nous
+allons nous en servir. C'est d'ailleurs un équivalent à `use rand;`,
+donc nous pouvons utiliser tout ce qui se trouve dans `rand` avec
+`rand::`.
 
 Next, we added another `use` line: `use rand::Rng`. We’re going to use a
 method in a moment, and it requires that `Rng` be in scope to work. The basic
