@@ -422,43 +422,45 @@ source pour que les autres puissent s'en servir.
 
 [cratesio]: https://crates.io
 
-After updating the registry, Cargo checks our `[dependencies]` and downloads
-any we don’t have yet. In this case, while we only said we wanted to depend on
-`rand`, we’ve also grabbed a copy of `libc`. This is because `rand` depends on
-`libc` to work. After downloading them, it compiles them, and then compiles
-our project.
+Après avoir mis à jour le registre, Cargo va vérifier notre `[dependencies]`
+et télécharger tout ce que nous n'avons pas encore. Dans notre cas, alors
+que nous avions seulement dit que nous voulions dépendre de `rand`, nous
+avons aussi récupéré une copie de `libc`. C'est parce que `rand` dépend de
+`libc` pour fonctionner. Après les avoir téléchargé, it les compile puis
+compile notre projet.
 
-If we run `cargo build` again, we’ll get different output:
+Si nous relançons `cargo build`, nous obtiendrons une sortie différente :
 
 ```bash
 $ cargo build
 ```
 
-That’s right, no output! Cargo knows that our project has been built, and that
-all of its dependencies are built, and so there’s no reason to do all that
-stuff. With nothing to do, it simply exits. If we open up `src/main.rs` again,
-make a trivial change, and then save it again, we’ll just see one line:
+Hé oui, rien ne s'affiche ! Cargo sait que notre projet a été compilé et
+que toutes ses dépendances l'ont été aussi, donc il n'a aucune raison de le
+refaire. Comme il n'a rien à faire, il se contente de terminer son
+exécution. Si nous ouvrons `src/main.rs`, faisions une petite modification,
+nous verrions alors une ligne :
 
 ```bash
 $ cargo build
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
 ```
 
-So, we told Cargo we wanted any `0.3.x` version of `rand`, and so it fetched the latest
-version at the time this was written, `v0.3.8`. But what happens when next
-week, version `v0.3.9` comes out, with an important bugfix? While getting
-bugfixes is important, what if `0.3.9` contains a regression that breaks our
-code?
+Donc, nous avons dit à Cargo que nous voulions n'importe quelle version
+`0.3.x`, donc il est allé chercher la dernière version correspondante
+disponible, la `0.3.8`. Qu'est-ce qu'il se passera quand la version `0.3.9`
+sortira avec un important bugfix ? Même si les bugfixes sont importants,
+que se passera-t-il si la `0.3.9` contient une régression qui casse notre
+code ?
 
-The answer to this problem is the `Cargo.lock` file you’ll now find in your
-project directory. When you build your project for the first time, Cargo
-figures out all of the versions that fit your criteria, and then writes them
-to the `Cargo.lock` file. When you build your project in the future, Cargo
-will see that the `Cargo.lock` file exists, and then use that specific version
-rather than do all the work of figuring out versions again. This lets you
-have a repeatable build automatically. In other words, we’ll stay at `0.3.8`
-until we explicitly upgrade, and so will anyone who we share our code with,
-thanks to the lock file.
+La réponse a cette question est le fichier `Cargo.lock` que vous trouverez
+dans dossier projets. Quand vous compilez votre projet pour la première
+fois, Cargo détermine toutes les versions qui correspondent à nos critères
+et les écris ensuite dans le fichier `Cargo.lock`. Quand vous compilerez
+votre projet dans le futur, Cargo verra que le fichier `Cargo.lock` existe
+et utilisera la version spécifiée plutôt que de devoir chercher de nouveau
+la version que nous voulons. En d'autres mots, nous resterons à la version
+`0.3.8` tant que nous ne ferons pas d'upgrade nous-même.
 
 What about when we _do_ want to use `v0.3.9`? Cargo has another command,
 `update`, which says ‘ignore the lock, figure out all the latest versions that
