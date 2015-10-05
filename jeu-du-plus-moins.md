@@ -286,91 +286,97 @@ sous-bibliothèques, comme `io::Result`.
 [ioresult]: https://doc.rust-lang.org/stable/std/io/type.Result.html
 [result]: https://doc.rust-lang.org/stable/std/result/enum.Result.html
 
-The purpose of these `Result` types is to encode error handling information.
-Values of the `Result` type, like any type, have methods defined on them. In
-this case, `io::Result` has an `ok()` method, which says ‘we want to assume
-this value is a successful one. If not, just throw away the error
-information’. Why throw it away? Well, for a basic program, we just want to
-print a generic error, as basically any issue means we can’t continue. The
-[`ok()` method][ok] returns a value which has another method defined on it:
-`expect()`. The [`expect()` method][expect] takes a value it’s called on, and
-if it isn’t a successful one, [`panic!`][panic]s with a message you
-passed it. A `panic!` like this will cause our program to crash, displaying
-the message.
+Le but de ces `Result` est d'encoder les informations de l'erreur. Les
+valeurs du type `Result`, comme n'importe quel type, a des méthodes à lui.
+Dans le cas présent, `io::Result` a une méthode `ok()`, qui dit "nous
+voulons partir du principe que cette valeur est bonne, Sinon, renvoie juste
+les informations de l'erreur".  Pourquoi la renvoyer ? Hé bien, pour un
+programme aussi simple, nous voulons juste afficher l'erreur générique
+et quitter car nous ne pouvons continuer si nous avons une erreur.
+La [méthode `ok()`][ok] retourne une valeur qui contient une autre méthode
+définie : `expect()`. La [méthode `expect()`][expect] prend la valeur sur
+laquelle elle a été appelée, et si ce n'est pas une "bonne", [`panic!`]
+[panic] sera appelée avec le message que vous avez donné. Un appel à
+`panic!` fera planter notre programme et affichera le message.
 
-[ok]: ../std/result/enum.Result.html#method.ok
-[expect]: ../std/option/enum.Option.html#method.expect
-[panic]: error-handling.html
+[ok]: https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.ok
+[expect]: https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.expect
+[panic]: gestion-erreur.html
 
-If we leave off calling these two methods, our program will compile, but
-we’ll get a warning:
+Si nous laissons les appels de ces deux méthodes, notre programme compilera
+mais nous aurons un warning :
 
 ```bash
 $ cargo build
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
 src/main.rs:10:5: 10:39 warning: unused result which must be used,
 #[warn(unused_must_use)] on by default
 src/main.rs:10     io::stdin().read_line(&mut guess);
                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
 
-Rust warns us that we haven’t used the `Result` value. This warning comes from
-a special annotation that `io::Result` has. Rust is trying to tell you that
-you haven’t handled a possible error. The right way to suppress the error is
-to actually write error handling. Luckily, if we just want to crash if there’s
-a problem, we can use these two little methods. If we can recover from the
-error somehow, we’d do something else, but we’ll save that for a future
-project.
+Rust nous averti que nous n'avons pas utilisé le `Result` retourné. Le warning
+vient de l'annotation spécial qu'a `io::Result`. Rust essaie de dire que nous
+n'avons pas géré une potentielle erreur. La bonne façon de supprimer cette
+erreur est d'afficher sa description. Par chance, si nous voulons juste
+crasher s'il y a un problème, nous pouvons utiliser ces deux petites méthodes.
+Si nous pouvons récupérer de l'erreur d'une façon ou d'une autre, nous
+devrions le faire, mais nous verrons cela dans un autre projet.
 
-There’s just one line of this first example left:
+Il ne reste maintenant plus qu'une seule ligne de notre exemple :
 
 ```rust,ignore
     println!("You guessed: {}", guess);
 }
 ```
 
-This prints out the string we saved our input in. The `{}`s are a placeholder,
-and so we pass it `guess` as an argument. If we had multiple `{}`s, we would
-pass multiple arguments:
+Cela affiche la string dans laquelle nous avions sauvegardé ce que
+l'utilisateur avait rentré. `{}` sert à indiquer que nous afficherons
+quelque chose à cet emplacement, et donc nous lui passons `guess`
+comme argument. Si vous avions plusieurs `{}`, nous devrions passer
+plusieurs arguments :
 
 ```rust
 let x = 5;
 let y = 10;
 
-println!("x and y: {} and {}", x, y);
+println!("x et y: {} et {}", x, y);
 ```
 
-Easy.
+Facile.
 
-Anyway, that’s the tour. We can run what we have with `cargo run`:
+Bref, voilà qui est fait. Nous pouvons lancer ce que nous avons
+avec `cargo run` :
 
 ```bash
 $ cargo run
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
-     Running `target/debug/guessing_game`
-Guess the number!
-Please input your guess.
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
+     Running `target/debug/jeu_plus_moins`
+Devinez le nombre !
+Veuillez entrer un nombre.
 6
-You guessed: 6
+Vous avez entré : 6
 ```
 
-All right! Our first part is done: we can get input from the keyboard,
-and then print it back out.
+Parfait ! Notre première partie est terminée : nous pouvons récupérer
+l'entrée d'un utilisateur puis l'afficher.
 
-# Generating a secret number
+# Generer a numbre secret
 
-Next, we need to generate a secret number. Rust does not yet include random
-number functionality in its standard library. The Rust team does, however,
-provide a [`rand` crate][randcrate]. A ‘crate’ is a package of Rust code.
-We’ve been building a ‘binary crate’, which is an executable. `rand` is a
-‘library crate’, which contains code that’s intended to be used with other
-programs.
+Ensuite, nous allons avoir besoin de générer un nombre secret. Rust n'inclut
+pas encore de fonctionner de nombre aléatoire dans sa bibliothèque standard.
+L'équipe Rust fournit cependant une [crate `rand`][randcrate]. Une "crate"
+est un paquet de code Rust. Pour le moment, nous avons compilé des "crates
+binaires", ou plus simplement des exécutables. `rand` est une "crate
+bibliothèque" qui contient du code destiné à être utilisé dans d'autres
+programmes.
 
 [randcrate]: https://crates.io/crates/rand
 
-Using external crates is where Cargo really shines. Before we can write
-the code using `rand`, we need to modify our `Cargo.toml`. Open it up, and
-add these few lines at the bottom:
+C'est dans l'utilisation de crates externes que Cargo brille vraiment.
+Avant que n'écrivions du code utilisant `rand`, nous aurons besoin de
+modifier notre `Cargo.toml`. Ouvrez-le et ajoutez les lignes suivantes
+à la fin :
 
 ```toml
 [dependencies]
@@ -378,20 +384,23 @@ add these few lines at the bottom:
 rand="0.3.0"
 ```
 
-The `[dependencies]` section of `Cargo.toml` is like the `[package]` section:
-everything that follows it is part of it, until the next section starts.
-Cargo uses the dependencies section to know what dependencies on external
-crates you have, and what versions you require. In this case, we’ve specified version `0.3.0`,
-which Cargo understands to be any release that’s compatible with this specific version.
-Cargo understands [Semantic Versioning][semver], which is a standard for writing version
-numbers. If we wanted to use only `0.3.0` exactly, we could use `=0.3.0`. If we
-wanted to use the latest version we could use `*`; We could use a range of
-versions. [Cargo’s documentation][cargodoc] contains more details.
+La section `[dependencies]` de `Cargo.toml` ressemble à la section `[package]` :
+tout ce qui suit en fait partie tant que la section suivante n'a pas commencé.
+Cargo utilise la section `dependencies` pour savoir quelles dépendances nous
+avons sur des crates externes et de quelles versions nous avons besoin. Dans le
+cas présent, nous avons spécifié la version `0.3.0`, ce que Cargo interprète
+comme étant n'importe quelle release compatible avec la version spécifiée.
+Cargo utilise la [Sématique de versionnage][semver] qui est un standard pour
+écrire des numéros de version. Si nous voulions uniquement utiliser
+spécifiquement `0.3.0`, nous devrions utiliser `=0.3.0`. Si nous voulions
+utiliser la dernière version, nous pourrions utiliser `*`. Il est aussi possible
+d'utiliser un rang de version, la [documentation de Cargo][cargodoc] contient
+plus de détails.
 
 [semver]: http://semver.org
 [cargodoc]: http://doc.crates.io/crates-io.html
 
-Now, without changing any of our code, let’s build our project:
+Maintenant, sans rien changer dans notre code, compilons dans notre projet :
 
 ```bash
 $ cargo build
@@ -400,15 +409,16 @@ $ cargo build
  Downloading libc v0.1.6
    Compiling libc v0.1.6
    Compiling rand v0.3.8
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+   Compiling guessing_game v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
 ```
 
-(You may see different versions, of course.)
+(Vous pouvez voir d'autres versions, bien évidemment).
 
-Lots of new output! Now that we have an external dependency, Cargo fetches the
-latest versions of everything from the registry, which is a copy of data from
-[Crates.io][cratesio]. Crates.io is where people in the Rust ecosystem
-post their open source Rust projects for others to use.
+Beaucoup de nouveaux affichages ! Maintenant que nous avons une dépendance
+externe, Cargo va chercher les dernières versions de tout ce que contient
+le registre, qui est une copie de [crates.io][cratesio]. `crates.io` est
+l'endroit où les gens de l'écosystème Rust postent leur projets Rust open
+source pour que les autres puissent s'en servir.
 
 [cratesio]: https://crates.io
 
