@@ -515,62 +515,68 @@ allons nous en servir. C'est d'ailleurs un équivalent à `use rand;`,
 donc nous pouvons utiliser tout ce qui se trouve dans `rand` avec
 `rand::`.
 
-Next, we added another `use` line: `use rand::Rng`. We’re going to use a
-method in a moment, and it requires that `Rng` be in scope to work. The basic
-idea is this: methods are defined on something called ‘traits’, and for the
-method to work, it needs the trait to be in scope. For more about the
-details, read the [traits][traits] section.
+Ensuite, nous avons ajouter une autre ligne `use` : `use rand::Rng`. Nous
+allons bientôt utiliser une méthode qui a besoin que `Rng` soit importé
+dans le scope courant. L'idée de base est la suivante : les méthodes sont
+définies sur ce que l'on appelles des "traits", et pour qu'une méthode
+fonctionne, il y a besoin que le trait soit importé. Pour plus de détails,
+lisez la section [traits][traits].
 
 [traits]: traits.html
 
-There are two other lines we added, in the middle:
+Nous avons aussi ajouté deux autres lignes au milieu :
 
 ```rust,ignore
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("Le nombre secret est : {}", secret_number);
 ```
 
-We use the `rand::thread_rng()` function to get a copy of the random number
-generator, which is local to the particular [thread][concurrency] of execution
-we’re in. Because we `use rand::Rng`’d above, it has a `gen_range()` method
-available. This method takes two arguments, and generates a number between
-them. It’s inclusive on the lower bound, but exclusive on the upper bound,
-so we need `1` and `101` to get a number ranging from one to a hundred.
+Nous utilisons la fonction `rand::thread_rng()` pour obtenir une copie
+du générateur de nombre aléatoire, ce qui est local au [thread][concurrence]
+d'exécution dans lequel nous nous trouvons. Parce que nous avons fait
+`use rand::Rng` au-dessus, la méthode `gen_range()` est disponible. Cette
+méthode prend deux arguments et génère un nombre compris entre les deux.
+Cela inclut le plus petit nombre mais exclut le plus grand, donc nous avons
+besoin de `1` et `101` pour obtenir un nombre compris entre 1 (inclus) et
+100.
 
-[concurrency]: concurrency.html
+[concurrence]: concurrence.html
 
-The second line just prints out the secret number. This is useful while
-we’re developing our program, so we can easily test it out. But we’ll be
-deleting it for the final version. It’s not much of a game if it prints out
-the answer when you start it up!
+La deuxième ligne affiche le nombre secret. C'est utile pendant le
+développement de notre programme pour que nous puissions le tester
+facilement. Nous le supprimerons de la version finale (ce ne serait
+pas vraiment un jeu si nous affichions la réponse avant même de
+commencer !).
 
-Try running our new program a few times:
+Essayez de lancer notre programme plusieurs fois :
 
 ```bash
 $ cargo run
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
-     Running `target/debug/guessing_game`
-Guess the number!
-The secret number is: 7
-Please input your guess.
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
+     Running `target/debug/jeu_plus_moins`
+Devinez le nombre !
+Le nombre secret est : 7
+Veuillez entrer un nombre.
 4
-You guessed: 4
+Vous avez entré : 4
 $ cargo run
-     Running `target/debug/guessing_game`
-Guess the number!
-The secret number is: 83
-Please input your guess.
+     Running `target/debug/jeu_plus_moins`
+Devinez le nombre !
+Le nombre secret est : 83
+Veuillez entrer un nombre.
 5
-You guessed: 5
+Vous avez entré : 5
 ```
 
-Great! Next up: let’s compare our guess to the secret guess.
+Excellent ! Prochaine étape : comparer le nombre entré avec le nombre
+secret.
 
-# Comparing guesses
+# Comparaisons
 
-Now that we’ve got user input, let’s compare our guess to the random guess.
-Here’s our next step, though it doesn’t quite compile yet:
+Maintenant que nous avons récupéré ce que l'utilisateur a rentré, il va
+falloir le comparer avec le nombre aléatoire généré. Voici la prochaine
+étape, même si elle ne compile pas pour le moment :
 
 ```rust,ignore
 extern crate rand;
@@ -580,47 +586,49 @@ use std::cmp::Ordering;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("Le nombre secret est : {}", secret_number);
 
-    println!("Please input your guess.");
+    println!("Veuillez entrer un nombre.");
 
     let mut guess = String::new();
 
     io::stdin().read_line(&mut guess)
         .ok()
-        .expect("failed to read line");
+        .expect("Impossible de lire la ligne");
 
-    println!("You guessed: {}", guess);
+    println!("Vous avez entré : {}", guess);
 
     match guess.cmp(&secret_number) {
-        Ordering::Less    => println!("Too small!"),
-        Ordering::Greater => println!("Too big!"),
-        Ordering::Equal   => println!("You win!"),
+        Ordering::Less    => println!("Trop petit !"),
+        Ordering::Greater => println!("Trop grand !"),
+        Ordering::Equal   => println!("Vous l'avez trouvé !"),
     }
 }
 ```
 
-A few new bits here. The first is another `use`. We bring a type called
-`std::cmp::Ordering` into scope. Then, five new lines at the bottom that use
-it:
+Pas mal de nouvelles choses encore une fois. La première est un nouveau
+`use`. Nous avons importé dans le scope un type appelé `std::cmp::Ordering`.
+Ensuite, 5 lignes en bas l'utilisent :
 
 ```rust,ignore
 match guess.cmp(&secret_number) {
-    Ordering::Less    => println!("Too small!"),
-    Ordering::Greater => println!("Too big!"),
-    Ordering::Equal   => println!("You win!"),
+    Ordering::Less    => println!("Trop petit !"),
+    Ordering::Greater => println!("Trop grand !"),
+    Ordering::Equal   => println!("Vous avez gagné !"),
 }
 ```
 
-The `cmp()` method can be called on anything that can be compared, and it
-takes a reference to the thing you want to compare it to. It returns the
-`Ordering` type we `use`d earlier. We use a [`match`][match] statement to
-determine exactly what kind of `Ordering` it is. `Ordering` is an
-[`enum`][enum], short for ‘enumeration’, which looks like this:
+La méthode `cmp()` peut être appelée sur n'importe quoi qui peut être
+comparé et prend une référence sur la chose avec laquelle on veut
+comparer. Elle retourne le type `Ordering` que nous avons importé
+précédemment. Nous utilisons un [`match`][match] pour déterminé
+exactement quel genre de `Ordering` cela peut bien être. `Ordering`
+est une [`enum`][enum], raccourci pour "énumération" qui ressemble
+à ça :
 
 ```rust
 enum Foo {
@@ -632,33 +640,34 @@ enum Foo {
 [match]: match.html
 [enum]: enums.html
 
-With this definition, anything of type `Foo` can be either a
-`Foo::Bar` or a `Foo::Baz`. We use the `::` to indicate the
-namespace for a particular `enum` variant.
+Avec cette définition, n'importe quoi de type `Foo` peut être
+un `Foo::Bar` ou un `Foo::Baz`. Nous utilisons le `::` pour
+indiquer le namespace pour un élément d'`enum` particulier.
 
-The [`Ordering`][ordering] `enum` has three possible variants: `Less`, `Equal`,
-and `Greater`. The `match` statement takes a value of a type, and lets you
-create an ‘arm’ for each possible value. Since we have three types of
-`Ordering`, we have three arms:
+L'`enum` [`Ordering`][ordering] a trois éléments : `Less`, `Equal`,
+et `Greater`. Le `match` prend une valeur d'un type et vous laisse
+créer une "branche" pour chaque valeur potentielle. Comme nous avons
+trois types de `Ordering`, nous avons trois branches :
 
 ```rust,ignore
 match guess.cmp(&secret_number) {
-    Ordering::Less    => println!("Too small!"),
-    Ordering::Greater => println!("Too big!"),
-    Ordering::Equal   => println!("You win!"),
+    Ordering::Less    => println!("Trop petit !"),
+    Ordering::Greater => println!("Trop grand !"),
+    Ordering::Equal   => println!("Vous avez gagné !"),
 }
 ```
 
-[ordering]: ../std/cmp/enum.Ordering.html
+[ordering]: https://doc.rust-lang.org/stable/std/cmp/enum.Ordering.html
 
-If it’s `Less`, we print `Too small!`, if it’s `Greater`, `Too big!`, and if
-`Equal`, `You win!`. `match` is really useful, and is used often in Rust.
+Si c'est `Less`, nous avons `Trop petit !`, si c'est `Greater`, `Trop grand !`
+et si c'est `Equal`, nous affichons `Vous avez gagné !`. `match` est très
+utile et est utilisé fréquemment en Rust.
 
-I did mention that this won’t quite compile yet, though. Let’s try it:
+J'ai dit que cela ne compilait pas encore cependant. Essayons :
 
 ```bash
 $ cargo build
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
 src/main.rs:28:21: 28:35 error: mismatched types:
  expected `&collections::string::String`,
     found `&_`
@@ -667,21 +676,23 @@ src/main.rs:28:21: 28:35 error: mismatched types:
 src/main.rs:28     match guess.cmp(&secret_number) {
                                    ^~~~~~~~~~~~~~
 error: aborting due to previous error
-Could not compile `guessing_game`.
+Could not compile `jeu_plus_moins`.
 ```
 
-Whew! This is a big error. The core of it is that we have ‘mismatched types’.
-Rust has a strong, static type system. However, it also has type inference.
-When we wrote `let guess = String::new()`, Rust was able to infer that `guess`
-should be a `String`, and so it doesn’t make us write out the type. And with
-our `secret_number`, there are a number of types which can have a value
-between one and a hundred: `i32`, a thirty-two-bit number, or `u32`, an
-unsigned thirty-two-bit number, or `i64`, a sixty-four-bit number or others.
-So far, that hasn’t mattered, and so Rust defaults to an `i32`. However, here,
-Rust doesn’t know how to compare the `guess` and the `secret_number`. They
-need to be the same type. Ultimately, we want to convert the `String` we
-read as input into a real number type, for comparison. We can do that
-with three more lines. Here’s our new program:
+Whew ! C'est une grosse error. Le coeur de toute cette bouillie est le
+"mismatched types". Rust a un système de typage fort et statique. Cependant,
+il a aussi de l'inférence. Quand nous avons écrit `let guess = String::new()`,
+Rust a été capable d'inférer que `guess` devait être une `String`, et donc
+nous n'avons pas été obligé de spécifier le type nous-même. Et avec notre
+`secret_number`, il y a un certain nombre de types qui pouvaient avoir
+une valeur entre 1 et 100 : `i32`, un nombre sur 32 bits, ou `u32`,
+un nombre sur 32 bits non-signé, ou `i64`, un nombre sur 64 bits, etc...
+Jusque là, ça n'avait pas d'importance, et Rust utilise `i32` par défaut.
+Cependant, ici, Rust ne sait pas comment comparer `guess` et `secret_number`.
+Ils ont besoin d'être du même type. En fin de compte, nous voudrions
+convertir la `String` que nous avons récupéré de l'entrée utilisateur en
+un "vrai" type représentant un nombre pour la comparaison. Nous pouvons
+le faire en ajoutant trois lignes. Voici notre nouveau programme :
 
 ```rust,ignore
 extern crate rand;
@@ -691,101 +702,108 @@ use std::cmp::Ordering;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("Le nombre secret est : {}", secret_number);
 
-    println!("Please input your guess.");
+    println!("Veuillez entrer un nombre.");
 
     let mut guess = String::new();
 
     io::stdin().read_line(&mut guess)
         .ok()
-        .expect("failed to read line");
+        .expect("Impossible de lire la ligne");
 
     let guess: u32 = guess.trim().parse()
         .ok()
-        .expect("Please type a number!");
+        .expect("Veuillez entrer un nombre !");
 
-    println!("You guessed: {}", guess);
+    println!("Vous avez entré : {}", guess);
 
     match guess.cmp(&secret_number) {
-        Ordering::Less    => println!("Too small!"),
-        Ordering::Greater => println!("Too big!"),
-        Ordering::Equal   => println!("You win!"),
+        Ordering::Less    => println!("Trop petit !"),
+        Ordering::Greater => println!("Trop grand !"),
+        Ordering::Equal   => println!("Vous l'avez trouvé !"),
     }
 }
 ```
 
-The new three lines:
+Les trois nouvelles lignes :
 
 ```rust,ignore
     let guess: u32 = guess.trim().parse()
         .ok()
-        .expect("Please type a number!");
+        .expect("Veuillez entrer un nombre !");
 ```
 
-Wait a minute, I thought we already had a `guess`? We do, but Rust allows us
-to ‘shadow’ the previous `guess` with a new one. This is often used in this
-exact situation, where `guess` starts as a `String`, but we want to convert it
-to an `u32`. Shadowing lets us re-use the `guess` name, rather than forcing us
-to come up with two unique names like `guess_str` and `guess`, or something
-else.
+Attendez une minute, je pensais que nous avions déjà un `guess` ? C'est le cas,
+mais Rust permet de "cacher" le précédent `guess` avec un nouveau (on appelle
+ça le "shadowing"). C'est souvent utilisé dans ce genre de situation. Dans le
+cas présent, `guess` commence en tant que `String` mais nous le convertissons
+en `u32`. Le "shadowing" permet de réutiliser le nom `guess` plutôt que de
+nous forcer à créer deux noms uniques tels que `guess_str` et `guess` ou
+quelque chose dans le genre.
 
-We bind `guess` to an expression that looks like something we wrote earlier:
+Nous lions `guess` à une expression qui ressemble à quelque chose que nous
+avons écrit un peu plus tôt :
 
 ```rust,ignore
 guess.trim().parse()
 ```
 
-Followed by an `ok().expect()` invocation. Here, `guess` refers to the old
-`guess`, the one that was a `String` with our input in it. The `trim()`
-method on `String`s will eliminate any white space at the beginning and end of
-our string. This is important, as we had to press the ‘return’ key to satisfy
-`read_line()`. This means that if we type `5` and hit return, `guess` looks
-like this: `5\n`. The `\n` represents ‘newline’, the enter key. `trim()` gets
-rid of this, leaving our string with just the `5`. The [`parse()` method on
-strings][parse] parses a string into some kind of number. Since it can parse a
-variety of numbers, we need to give Rust a hint as to the exact type of number
-we want. Hence, `let guess: u32`. The colon (`:`) after `guess` tells Rust
-we’re going to annotate its type. `u32` is an unsigned, thirty-two bit
-integer. Rust has [a number of built-in number types][number], but we’ve
-chosen `u32`. It’s a good default choice for a small positive number.
+Suivi par un appel à `ok().expect()`. Ici, `guess` est toujours l'ancien
+`guess`, celui qui était une `String` contenant ce qu'avait entré l'utilisateur.
+La méthode `trim` de `String` supprime tous les "white spaces" (tabulation,
+retour à la ligne, espace) au début et à la fin de notre string. C'est important
+car nous avons appué sur la touche "Entrée" pour valider notre saisie et ainsi
+"satisfaire" `read_line()`. Cela signifie que si nous entrons `5` et appuyons
+sur la touche Entrée, `guess` ressemblera à `5\n`. Le `\n` représente une
+"nouvelle ligne", la touche Entrée donc. `trim()` supprime le `\n`, laissant
+notre string avec juste `5`. La [méthode `parse()` d'une string][parse] la
+parse en un nombre. Puisqu'elle peut parser plusieurs variétés de nombres,
+nous devons donner à Rust un "indice" pour lui permettre de déterminer le
+type de nombre exact que nous voulons. Par conséquent, `let guess: u32`.
+Le `:` après `guess` dit à Rust que nous allons annoter ce type. `u32`
+est un entier non signé de 32 bits. Rust a [plusieurs types de nombres
+"built-in"][number], mais nous avons choisi `u32`. C'est un bon choix par
+défaut pour un petit nombre positif (> 0).
 
-[parse]: ../std/primitive.str.html#method.parse
-[number]: primitive-types.html#numeric-types
+[parse]: https://doc.rust-lang.org/stable/std/primitive.str.html#method.parse
+[number]: types-primitifs.html#types-numeriques
 
-Just like `read_line()`, our call to `parse()` could cause an error. What if
-our string contained `A👍%`? There’d be no way to convert that to a number. As
-such, we’ll do the same thing we did with `read_line()`: use the `ok()` and
-`expect()` methods to crash if there’s an error.
+Tout comme `read_line()`, notre appel à `parse()` pourrait causer une
+erreur. Et si notre string contenait `A👍%` ? Impossible de convertir ça en
+nombre. Du coup, nous devrons faire la même chose qu'avec `read_line()` :
+utiliser les méthodes `ok()` et `expect()` pour crasher en cas d'erreur.
 
-Let’s try our program out!
+Essayons notre programme !
 
 ```bash
 $ cargo run
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
-     Running `target/guessing_game`
-Guess the number!
-The secret number is: 58
-Please input your guess.
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
+     Running `target/jeu_plus_moins`
+Devinez le nombre !
+Le nombre secret est : 58
+Veuillez entrer un nombre.
   76
-You guessed: 76
-Too big!
+Vous avez entré : 76
+Trop grand !
 ```
 
-Nice! You can see I even added spaces before my guess, and it still figured
-out that I guessed 76. Run the program a few times, and verify that guessing
-the number works, as well as guessing a number too small.
+Cool ! Vous pouvez voir que j'ai même ajouter des espaces avant d'entrer mon
+nombre, et il devine quand même que c'est 76. Lancez le programme plusieurs
+fois, et vérifiez quand le nombre fonctionne correctement, tout comme
+rentrer un nombre trop petit.
 
-Now we’ve got most of the game working, but we can only make one guess. Let’s
-change that by adding loops!
+Maintenant nous avons la majorité de notre jeu qui fonctionne, mais nous
+n'avons qu'une seule chance pour trouver le nombre secret (difficulté un peu
+trop élevée donc !). Changeons cela en ajoutons des boucles !
 
-# Looping
+# Boucler
 
-The `loop` keyword gives us an infinite loop. Let’s add that in:
+Le mot-clé `loop` nous permet de créer des boucles infinies. Ajoutons-le :
 
 ```rust,ignore
 extern crate rand;
@@ -795,65 +813,67 @@ use std::cmp::Ordering;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("Le nombre secret est : {}", secret_number);
 
     loop {
-        println!("Please input your guess.");
+        println!("Veuillez entrer un nombre.");
 
         let mut guess = String::new();
 
         io::stdin().read_line(&mut guess)
             .ok()
-            .expect("failed to read line");
+            .expect("Impossible de lire la ligne");
 
         let guess: u32 = guess.trim().parse()
             .ok()
-            .expect("Please type a number!");
+            .expect("Veuillez entrer un nombre !");
 
-        println!("You guessed: {}", guess);
+        println!("Vous avez entré : {}", guess);
 
         match guess.cmp(&secret_number) {
-            Ordering::Less    => println!("Too small!"),
-            Ordering::Greater => println!("Too big!"),
-            Ordering::Equal   => println!("You win!"),
+            Ordering::Less    => println!("Trop petit !"),
+            Ordering::Greater => println!("Trop grand !"),
+            Ordering::Equal   => println!("Vous avez gagné !"),
         }
     }
 }
 ```
 
-And try it out. But wait, didn’t we just add an infinite loop? Yup. Remember
-our discussion about `parse()`? If we give a non-number answer, we’ll `return`
-and quit. Observe:
+Et maintenant essayez. Non mais attends, on vient pas juste d'ajouter une
+boucle infinie ? Yup. Vous vous souvenez de notre discussion au sujet de
+`parse()` ? Si nous entrons un nombre invalide, nous allons `return` et
+quitter. Observez :
 
 ```bash
 $ cargo run
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
-     Running `target/guessing_game`
-Guess the number!
-The secret number is: 59
-Please input your guess.
+   Compiling jeu_plus_moins v0.1.0 (file:///home/you/projects/jeu_plus_moins)
+     Running `target/jeu_plus_moins`
+Devinez le nombre !
+Le nombre secret est : 59
+Veuillez entrer un nombre.
 45
-You guessed: 45
-Too small!
-Please input your guess.
+Vous avez entré : 45
+Trop petit !
+Veuillez entrer un nombre.
 60
-You guessed: 60
-Too big!
-Please input your guess.
+Vous avez entré : 60
+Trop grand !
+Veuillez entrer un nombre.
 59
-You guessed: 59
-You win!
-Please input your guess.
+Vous avez entré : 59
+Vous avez gagné !
+Veuillez entrer un nombre.
 quit
-thread '<main>' panicked at 'Please type a number!'
+thread '<main>' panicked at 'Veuillez entrer un nombre !'
 ```
 
-Ha! `quit` actually quits. As does any other non-number input. Well, this is
-suboptimal to say the least. First, let’s actually quit when you win the game:
+Ha! `quit` a vraiment quitter. Tout comme n'importe quel input qui ne serait
+pas un nombre. Bien, cela est sous-optimale pour ne pas dire plus.
+Premièrement, quittons le jeu quand nous gagnons :
 
 ```rust,ignore
 extern crate rand;
@@ -863,32 +883,32 @@ use std::cmp::Ordering;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("Le nombre secret est : {}", secret_number);
 
     loop {
-        println!("Please input your guess.");
+        println!("Veuillez entrer un nombre.");
 
         let mut guess = String::new();
 
         io::stdin().read_line(&mut guess)
             .ok()
-            .expect("failed to read line");
+            .expect("Impossible de lire la ligne");
 
         let guess: u32 = guess.trim().parse()
             .ok()
-            .expect("Please type a number!");
+            .expect("Veuillez entrer un nombre !");
 
-        println!("You guessed: {}", guess);
+        println!("Vous avez entré : {}", guess);
 
         match guess.cmp(&secret_number) {
-            Ordering::Less    => println!("Too small!"),
-            Ordering::Greater => println!("Too big!"),
+            Ordering::Less    => println!("Trop petit !"),
+            Ordering::Greater => println!("Trop grand !"),
             Ordering::Equal   => {
-                println!("You win!");
+                println!("Vous avez gagné !");
                 break;
             }
         }
@@ -896,11 +916,12 @@ fn main() {
 }
 ```
 
-By adding the `break` line after the `You win!`, we’ll exit the loop when we
-win. Exiting the loop also means exiting the program, since it’s the last
-thing in `main()`. We have just one more tweak to make: when someone inputs a
-non-number, we don’t want to quit, we just want to ignore it. We can do that
-like this:
+En ajoutant la ligne `break` après le `Vous avez gagné !`, nous allons quitter
+la boucle quand nous gagnerons. Quitter la boucle signifie aussi quitter le
+programme dans le cas présent car c'est la dernière chose dans notre
+`main()`. Nous avons juste un truc à faire : quand quelqu'un entre un input
+qui n'est pas un nombre, nous ne voulons pas quitter, nous voulons juste
+l'ignorer. Nous pouvons le faire comme ceci :
 
 ```rust,ignore
 extern crate rand;
@@ -910,33 +931,33 @@ use std::cmp::Ordering;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
-    println!("The secret number is: {}", secret_number);
+    println!("Le nombre secret est : {}", secret_number);
 
     loop {
-        println!("Please input your guess.");
+        println!("Veuillez entrer un nombre.");
 
         let mut guess = String::new();
 
         io::stdin().read_line(&mut guess)
             .ok()
-            .expect("failed to read line");
+            .expect("Impossible de lire la ligne");
 
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
             Err(_) => continue,
         };
 
-        println!("You guessed: {}", guess);
+        println!("Vous avez entré : {}", guess);
 
         match guess.cmp(&secret_number) {
-            Ordering::Less    => println!("Too small!"),
-            Ordering::Greater => println!("Too big!"),
+            Ordering::Less    => println!("Trop petit !"),
+            Ordering::Greater => println!("Trop grand !"),
             Ordering::Equal   => {
-                println!("You win!");
+                println!("Vous avez gagné !");
                 break;
             }
         }
@@ -944,7 +965,7 @@ fn main() {
 }
 ```
 
-These are the lines that changed:
+Voici les lignes qui ont changé :
 
 ```rust,ignore
 let guess: u32 = match guess.trim().parse() {
@@ -953,41 +974,45 @@ let guess: u32 = match guess.trim().parse() {
 };
 ```
 
-This is how you generally move from ‘crash on error’ to ‘actually handle the
-error’, by switching from `ok().expect()` to a `match` statement. The `Result`
-returned by `parse()` is an `enum` just like `Ordering`, but in this case, each
-variant has some data associated with it: `Ok` is a success, and `Err` is a
-failure. Each contains more information: the successfully parsed integer, or an
-error type. In this case, we `match` on `Ok(num)`, which sets the inner value
-of the `Ok` to the name `num`, and then we just return it on the right-hand
-side. In the `Err` case, we don’t care what kind of error it is, so we just
-use `_` instead of a name. This ignores the error, and `continue` causes us
-to go to the next iteration of the `loop`.
+C'est généralement comment on passe de "crash on error" (planter quand on a
+une erreur) à "vraiment gérer l'erreur", en transformant `ok().expect()` en
+un `match`. Le `Result` retourné par `parse()` est un `enum` tout comme
+`Ordering`, mais dans le cas présent, chaque élément a des données
+associées : `Ok` est une succès tandis que `Err` est un échec. Chacun
+contient des informations complémentaires : l'entier parsé avec succès
+ou un type d'erreur. Pour le premier, nous faisons un `match` sur `Ok(num)`
+qui met la valeur interne du `Ok` au nom `num`, et ensuite on se contente
+de le retourner au "right-hand side" (côté droit de l'expression pour
+faire simple). Dans le cas du `Err`, nous nous fichons de savoir quel
+type d'erreur cela peut bien être et nous utilisons plutôt `_` plutôt
+qu'un nom. Cela ignore l'erreur, et `continue` nous fait aller directement
+à l'itération suivante de `loop`.
 
-Now we should be good! Let’s try:
+Maintenant ça devrait être bon ! Essayons :
 
 ```bash
 $ cargo run
-   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
-     Running `target/guessing_game`
-Guess the number!
-The secret number is: 61
-Please input your guess.
+   Compiling jeu_plus_moins v0.1.0 (file:///home/vous/projets/jeu_plus_moins)
+     Running `target/jeu_plus_moins`
+Devinez le nombre !
+Le nombre secret est : 61
+Veuillez entrer un nombre.
 10
-You guessed: 10
-Too small!
-Please input your guess.
+Vous avez entré : 10
+Trop petit !
+Veuillez entrer un nombre.
 99
-You guessed: 99
-Too big!
-Please input your guess.
+Vous avez entré : 99
+Trop grand !
+Veuillez entrer un nombre.
 foo
-Please input your guess.
+Veuillez entrer un nombre.
 61
-You guessed: 61
-You win!
+Vous avez entré : 61
+Vous avez gagné !
 ```
 
+Merveilleux ! 
 Awesome! With one tiny last tweak, we have finished the guessing game. Can you
 think of what it is? That’s right, we don’t want to print out the secret
 number. It was good for testing, but it kind of ruins the game. Here’s our
@@ -1001,31 +1026,31 @@ use std::cmp::Ordering;
 use rand::Rng;
 
 fn main() {
-    println!("Guess the number!");
+    println!("Devinez le nombre !");
 
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
     loop {
-        println!("Please input your guess.");
+        println!("Veuillez entrer un nombre.");
 
         let mut guess = String::new();
 
         io::stdin().read_line(&mut guess)
             .ok()
-            .expect("failed to read line");
+            .expect("Impossible de lire la ligne");
 
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
             Err(_) => continue,
         };
 
-        println!("You guessed: {}", guess);
+        println!("Vous avez entré : {}", guess);
 
         match guess.cmp(&secret_number) {
-            Ordering::Less    => println!("Too small!"),
-            Ordering::Greater => println!("Too big!"),
+            Ordering::Less    => println!("Trop petit !"),
+            Ordering::Greater => println!("Trop grand !"),
             Ordering::Equal   => {
-                println!("You win!");
+                println!("Vous avez gagné !");
                 break;
             }
         }
@@ -1033,10 +1058,10 @@ fn main() {
 }
 ```
 
-# Complete!
+# Fini !
 
-At this point, you have successfully built the Guessing Game! Congratulations!
+À ce point, vous avez réussi à compiler le Jeu du Plus ou Moins ! Félicitations !
 
-This first project showed you a lot: `let`, `match`, methods, associated
-functions, using external crates, and more. Our next project will show off
-even more.
+Ce premier projet vous en a montré beaucoup : `let`, `match`, les méthodes, les
+fonctions assoécies, utiliser des crates externes, et bien plus. Notre prochain
+projet montrera encore plus !
