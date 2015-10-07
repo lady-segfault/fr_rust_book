@@ -29,11 +29,11 @@ introduction est la première. Après il y a :
 * [Sommaire][gl] - Une référence des termes utilisés dans ce livre.
 * [Bibliographie][bi] - Background des influences de Rust, articles parlant de Rust.
 
-[gs]: commcencer.html
+[gs]: commencer.html
 [lr]: apprendre-rust.html
 [er]: rust-en-action.html
 [ss]: syntaxe-et-semantiques.html
-[nr]: nightly-rust.html
+[nr]: rust-nightly.html
 [gl]: sommaire.html
 [bi]: bibliographie.html
 
