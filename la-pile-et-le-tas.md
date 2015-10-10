@@ -4,23 +4,23 @@
 d'un langage haut niveau, il y a certains aspects de la programmation
 système qui ne vous sont pas familiers. Le plus important est la façon
 dont la mémoire fonctionne, avec une pile (*stack*) et un tas (*heap*). Si
-la façon dont les langages type C utilisent l'allocation sur la pile
+la façon dont les langages similaires au C utilisent l'allocation sur la pile
 vous est familière, ce chapitre vous rafraîchira la mémoire. Sinon,
-vous apprendrez à propos de ce concept plus général, mais avec une
+vous apprendrez de manière plus générale à propos de ce concept, mais avec une
 focalisation sur Rust. 
 
 # Gestion de la mémoire
 
-Ces deux termes concernent la gestion de la mémoire. La pile et le tas
+La pile et le tas concernent la gestion de la mémoire. Ce
 sont des abstractions qui vous aident à déterminer quand allouer et
-désallouer de la mémoire.
+libérer de la mémoire.
 
 Voici une comparaison haut niveau :
 
 La pile est très rapide, c'est là où la mémoire est allouée par défaut
-dans Rust. Mais cette allocation est locale à un appel de fonction, et
-est limitée en taille. Le tas, de l'autre côté, est plus lent, et est
-alloué explicitement par votre programme. Mais il est dans les faits
+dans Rust, mais cette allocation est locale à un appel de fonction, et
+est limitée en taille. Le tas, quant à lui, est plus lent, et est
+alloué explicitement par votre programme. Mais il est pratiquement
 illimité en taille, et est accessible globalement.
 
 # La pile
@@ -33,24 +33,24 @@ fn main() {
 }
 ```
 
-Ce programme a une assocation de variable, `x`. Cette mémoire doit
+Ce programme a une variable, `x`. Cette mémoire doit
 être allouée depuis quelque part. Rust « alloue sur la pile » par
 défaut, ce qui veut dire que les valeurs basiques « vont sur la
 pile ». Qu'est-ce que ça veut dire ?
 
 Hé bien, quand une fonction est appelée, de la mémoire est allouée
 pour chacune de ses variables locales et pour d'autres
-informations. C'est appelé une « structure de pile » (*stack frame*)
+informations. On appelle cela une « structure de pile » (*stack frame*)
 et, dans le cadre de ce tutoriel, nous allons ignorer les informations
 additionnelles et simplement prendre en compte les variables locales
 que nous allouons. Donc, dans ce cas, quand `main()` est exécutée, nous
-allons allouer un unique entier de 32 bits pour notre structure de
+allons allouer un seul entier de 32 bits pour notre structure de
 pile. Ceci est automatiquement géré pour vous, comme vous pouvez le
-voir ; nous avons pas eu à écrire de code Rust spécial ou à faire quoi
+voir ; nous n'avons pas eu à écrire de code Rust spécial ou à faire quoi
 que ce soit. 
 
 Quand la fonction se termine, sa structure de pile est
-désallouée. Cela se produit également de manière automatique.
+libérée. Cela se produit également de manière automatique.
 
 C'est tout ce qu'il y a à voir pour ce programme simple. La chose importante
 à comprendre ici est que l'allocation sur la pile est très, très
@@ -83,9 +83,9 @@ dans `main()`. Comme dans le cas précédent, quand `main()` est appelée
 un unique entier est allouée pour sa structure de pile. Mais avant que
 nous puissions vous montrer ce qui se produit quand `foo()` est
 appelée, nous devons visualiser ce qui se passe avec la mémoire. Votre
-système d'exploitation présente à votre programme une vue de la
-mémoire qui est plutôt simple : une énorme liste d'adresses, de 0 à un
-grand nombre, représentant combien de RAM votre ordinateur
+système d'exploitation présente une mémoire qui est plutôt simple à
+votre programme : une énorme liste d'adresses, de 0 à un 
+grand nombre, représentant quelle quantité de RAM votre ordinateur
 possède. Par exemple, si vous avez un gigaoctet de RAM, vos adresses
 vont de `0` à `1,073,741,823`. Ce nombre est 2<sup>30</sup>, le nombre
 d'octets dans un gigaoctet.
@@ -109,8 +109,8 @@ Quand `foo()` est appelée, une nouvelle structure de pile est allouée :
 | 1       | y    | 5      |
 | 0       | x    | 42     |
 
-Comme `0` a été utilisé par la première structure, `1` et `2` sont
-utilisés pour la structure de pile de  `foo()`. Elle grandit vers le
+Comme `0` a été utilisée par la première structure, `1` et `2` sont
+utilisées pour la structure de pile de  `foo()`. Elle grandit vers le
 haut à mesure qu'on appelle des fonctions.
 
 Nous devons ici noter un certain nombre de choses importantes. Les
@@ -120,16 +120,16 @@ particulier, les séries d'adresses vont en réalité être séparées par
 un certain nombre d'octets qui séparent chaque adresse, et cette
 séparation peut même être supérieure à la taille de la valeur qui est stockée.
 
-Lorsque `foo()` a terminé, sa structure de pile est désallouée :
+Lorsque `foo()` a terminé, sa structure de pile est libérée :
 
 | Adresse | Nom | Valeur |
 |---------|-----|--------|
 | 0       | x   | 42     |
 
-Et ensuite, après `main()`, même cette dernière valeur disparaît. Facile !
+Ensuite, après `main()`, même cette dernière valeur disparaît. Facile !
 
-C'est appelé une « pile » parce que ça fonctionne comme une pile
-d'assiettes à dîner : la première assiette que vous déposez est la
+On appelle cela une « pile » parce que ça fonctionne comme une pile
+d'assiettes : la première assiette que vous déposez est la
 dernière que vous reprenez. Les piles sont aussi parfois appelées des
 queues « dernier entré, premier sorti » (*last in, first out* ou *LIFO*) pour
 cette raison, car la dernière valeur que vous placez sur la pile est
@@ -184,7 +184,7 @@ Et ensuite `foo()` appelle `bar()` :
 
 Ouah ! Notre pile grandit.
 
-Lorsque `bar()` a terminé, sa structure est désallouée, ne laissant
+Lorsque `bar()` a terminé, sa structure est libérée, ne laissant
 plus que `foo()` et `main()` :
 
 | Adresse | Nom  | Valeur |
@@ -206,12 +206,12 @@ vous reprenez d'en haut.
 
 # Le tas
 
-Toout cela marche plutôt bien, mais tout ne peut pas marcher comme
+Tout cela marche plutôt bien, mais tout ne peut pas marcher comme
 cela. Parfois, vous devez passer de la mémoire entre différentes
 fonctions, ou la garder en vie plus longtemps que la durée d'exécution
 d'une seule fonction. Pour faire cela, nous pouvons utiliser le tas.
 
-Dans Rust, vous pouvez allouer de la mémoire sur le tas avec le [type `Box<T>`][box].
+Dans Rust, vous pouvez allouer de la mémoire sur le tas avec le [type `Box<T>`][https://doc.rust-lang.org/stable/std/boxed/struct.Box.html].
 Voici un exemple :
 
 ```rust
@@ -245,7 +245,7 @@ place `5` à cet endroit. La mémoire ressemble maintenant à ça :
 | 1                    | y    | 42                     |
 | 0                    | x    | → (2<sup>30</sup>) - 1 |
 
-On a (2<sup>30</sup>) - 1 dans notre ordinateur hypothétique avec 1GO
+On a (2<sup>30</sup>) - 1 dans notre ordinateur hypothétique avec 1Go
 de RAM. Et comme la pile grandit à patir de zéro, l'endroit le plus
 facile où allouer de la mémoire est depuis l'autre bout. Notre
 première valeur est donc à l'emplacement le plus haut en mémoire. Et
@@ -257,12 +257,12 @@ nous avons demandé.
 [rawpointer]: raw-pointers.html
 
 Nous n'avons pas encore beaucoup abordé ce que veut dire allouer et
-désallouer de la mémoire dans ces contextes. Rentrer vraiment dans les
+libérer de la mémoire dans ces contextes. Rentrer vraiment dans les
 détails n'est pas le sujet de ce tutoriel, mais ce qu'il est important
 de souligner ici est que le tas n'est pas juste une pile qui grandit
 depuis l'autre bout. Nous verrons un exemple de cela plus tard dans ce
 livre, mais comme le tas peut être alloué et libéré dans n'importe
-quel ordre, il peut finir avec des « trous ».Voilà un schéma de la
+quel ordre, il peut finir avec des « trous ». Voilà un schéma de la
 disposition de la mémoire d'un programme qui tourne maintenant depuis
 un certain temps :
 
@@ -281,7 +281,7 @@ un certain temps :
 
 
 Dans ce cas, nous avons alloué quatre choses sur le tas, mais en avons
-désalloué deux. Il y a un vide entre (2<sup>30</sup>) - 1 et
+libéré deux. Il y a un vide entre (2<sup>30</sup>) - 1 et
 (2<sup>30</sup>) - 4 qui n'est pas utilisé actuellement. Les détails
 précis de commment et pourquoi cela se produit dépendent du type de
 stratégie que vous utilisez pour gérer le tas. Des programmes
@@ -361,7 +361,7 @@ association de variable locale. `i` est une copie de cet argument,
 `y`. Comme la valeur de `y` est `0`, celle de `i` est identique.
 
 C'est une raison qui explique pourquoi emprunter une variable ne
-désalloue pas de mémoire : la valeur d'une référence est juste un
+libère pas de mémoire : la valeur d'une référence est juste un
 pointeur vers un emplacement mémoire. Si on se débarrasse de cette
 mémoire sous-jacente, les choses ne vont pas très bien marcher.
 
@@ -429,7 +429,7 @@ De l'espace est alloué pour `x`, `y`, et `z`. L'argument `x` a la même
 valeur que `j`, car c'est ce qu'on a passé. C'est un pointeur vers
 l'adresse `0` car `j` pointe vers `h`.
 
-Ensuite, `foo()` appelle `baz()`, en pasant `z` :
+Ensuite, `foo()` appelle `baz()`, en passant `z` :
 
 | Adresse              | Nom  | Valeur                 |
 |----------------------|------|------------------------|
@@ -445,7 +445,7 @@ Ensuite, `foo()` appelle `baz()`, en pasant `z` :
 | 0                    | h    | 3                      |
 
 On a alloué de la mémoire pour `f` et `g`. `baz()` est très courte,
-donc lorsqu'elle a fini, on se débarasse de sa structure de pile :
+donc lorsqu'elle a fini, on se débarrasse de sa structure de pile :
 
 | Adresse              | Nom  | Valeur                 |
 |----------------------|------|------------------------|
@@ -557,7 +557,7 @@ Et, enfin, `main()` se termine, en nettoyant le reste. Quand `i` est
 La plupart des langages avec un ramasse-miettes (*garbage collector*)
 allouent sur le tas par défaut. Cela veut dire que chaque valeur est
 « encadrée » (*boxed*). Il y a un certain nombre de raisons qui
-expliquent cela, mais qui sortent du champ de ce tutoriel.  Il existe
+expliquent cela, mais qui sortent du champ de ce tutoriel. Il existe
 des optimisations possibles qui font que cela n'est pas vrai tout le
 temps non plus. Plutôt que de se reposer sur la pile et `Drop` pour
 nettoyer la mémoire, le ramasse-miettes s'occupe du tas à la place.
@@ -597,7 +597,7 @@ est une très bonne introduction.
 L'allocation sur la pile a un impact sur le langage Rust lui-même, et
 ainsi sur le modèle mental du développeur. La sémantique « dernier
 entré, premier sorti » est ce qui dirige la façon dont le langage Rust
-gère la gestion automatique de mémoire. Même la désallocation d'une
+gère la gestion automatique de mémoire. Même la libération d'une
 *box* ayant un propriétaire unique allouée sur le tas peut être
 dirigée par la sémantique « dernier entré, premier sorti » (*LIFO*) basée sur la
 pile, comme cela a été discuté à l'intérieur de ce chapitre. La
@@ -606,8 +606,8 @@ signifie qu'en général le compilateur ne peut pas déduire
 automatiquement au moment de la compilation où la mémoire devrait être
 libérée ; il doit se reposer sur des protocoles dynamiques, qui
 viennent potentiellement de l'extérieur du langage lui-même, pour diriger la
-désallocation. Le comptage de références (*reference counting* – *RC*)
-tel qu'utilisé par `Rc<T>` et `Arc<T>` est un exemple de cela.
+libération de mémoire. Le comptage de références (*reference counting* – *RC*)
+tel qu'utilisé par `Rc<T>` et `Arc<T>` est un bon exemple.
 
 Lorsqu'elle est poussée à l'extrême, l'augmentation de l'expressivité
 de l'allocation sur le tas vient au prix soit d'un support à
